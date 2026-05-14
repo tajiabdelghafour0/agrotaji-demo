@@ -14,6 +14,7 @@ export function ScannerView({ onCapture }: ScannerViewProps) {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [flash, setFlash] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     async function startCamera() {
@@ -27,7 +28,7 @@ export function ScannerView({ onCapture }: ScannerViewProps) {
         }
       } catch (err) {
         console.error("Camera access error:", err);
-        alert("يرجى السماح بالوصول للكاميرا.");
+        setHasError(true);
       }
     }
     startCamera();
@@ -88,6 +89,19 @@ export function ScannerView({ onCapture }: ScannerViewProps) {
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
       />
+
+      {hasError && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-50 p-6 text-center backdrop-blur-md">
+          <span className="text-[#FF4B4B] text-lg font-bold mb-3">تعذر الوصول للكاميرا</span>
+          <span className="text-white/80 text-sm font-medium leading-relaxed mb-6">يرجى تفعيل صلاحية الكاميرا في إعدادات المتصفح</span>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-2.5 bg-[#D4AF37] text-black font-bold rounded-full active:scale-95 transition-transform"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      )}
       
       {/* Ghost Outline (Leaf) */}
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center">

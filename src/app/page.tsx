@@ -11,6 +11,7 @@ export default function MockFlowPage() {
   const [appState, setAppState] = useState<AppState>("capture");
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isCameraReady, setIsCameraReady] = useState(false);
+  const [hasCameraError, setHasCameraError] = useState(false);
   const webcamRef = useRef<Webcam>(null);
 
   // Capture Image
@@ -69,15 +70,33 @@ export default function MockFlowPage() {
               screenshotFormat="image/jpeg"
               videoConstraints={{ facingMode: "environment" }}
               onUserMedia={() => setIsCameraReady(true)}
+              onUserMediaError={() => setHasCameraError(true)}
               className="absolute inset-0 w-full h-full object-cover"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
             
             {/* Loading Camera State */}
-            {!isCameraReady && (
+            {!isCameraReady && !hasCameraError && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-10 backdrop-blur-md">
                 <div className="w-10 h-10 border-4 border-[#D4AF37] border-t-transparent rounded-full animate-spin mb-4" />
                 <span className="text-white/60 text-sm font-medium tracking-wide animate-pulse">جاري فتح الكاميرا...</span>
+              </div>
+            )}
+
+            {/* Error Camera State */}
+            {hasCameraError && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-20 backdrop-blur-md p-6 text-center">
+                <span className="text-[#FF4B4B] text-lg font-bold mb-3">تعذر الوصول للكاميرا</span>
+                <span className="text-white/80 text-sm font-medium leading-relaxed mb-6">يرجى تفعيل صلاحية الكاميرا في إعدادات المتصفح</span>
+                <button 
+                  onClick={() => {
+                    setHasCameraError(false);
+                    setIsCameraReady(false);
+                  }}
+                  className="px-6 py-2.5 bg-[#D4AF37] text-black font-bold rounded-full active:scale-95 transition-transform"
+                >
+                  إعادة المحاولة
+                </button>
               </div>
             )}
             
@@ -85,7 +104,7 @@ export default function MockFlowPage() {
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 px-12">
               <div className="w-full aspect-[3/4] border-[2px] border-white/20 border-dashed rounded-[3rem] flex items-center justify-center relative backdrop-blur-[1px]">
                 <Leaf size={140} className="text-white/20" strokeWidth={1} />
-                <div className="absolute -bottom-6 px-5 py-2 bg-black/40 rounded-full backdrop-blur-md border border-white/10 shadow-lg">
+                <div className="absolute bottom-8 px-5 py-2 bg-black/40 rounded-full backdrop-blur-md border border-white/10 shadow-lg">
                   <span className="text-white/80 text-xs font-semibold tracking-wide">ضع النبتة داخل الإطار</span>
                 </div>
               </div>
@@ -93,8 +112,11 @@ export default function MockFlowPage() {
             
             {/* Refresh Camera Button */}
             <button 
-              onClick={() => setIsCameraReady(false)}
-              className="absolute top-6 right-5 z-50 p-2.5 bg-black/20 backdrop-blur-md rounded-full border border-white/10 active:scale-90 transition-transform shadow-sm"
+              onClick={() => {
+                setIsCameraReady(false);
+                setHasCameraError(false);
+              }}
+              className="absolute top-8 right-5 z-50 p-2.5 bg-black/20 backdrop-blur-md rounded-full border border-white/10 active:scale-90 transition-transform shadow-sm"
             >
               <RefreshCcw size={18} className="text-white" />
             </button>
